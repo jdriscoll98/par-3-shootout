@@ -124,7 +124,7 @@ function Green() {
       id="green"
       className="w-[5rem] h-[5rem] rounded-full bg-green-600 absolute top-[calc(25%_-_2.5rem)] left-[calc(50%_-_2.5rem)] flex items-center justify-center"
     >
-      <img src="/golf-hole.png" width="32" height="32" />
+      <img src="/src/assets/golf-hole.png" width="32" height="32" />
     </div>
   );
 }
