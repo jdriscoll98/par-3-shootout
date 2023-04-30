@@ -5,6 +5,7 @@ function App() {
   const [ballPos, setBallPos] = React.useState<{ x: number; y: number } | null>(
     null
   );
+  const [gameOver, setGameOver] = React.useState(false);
 
   useEffect(() => {
     const teeBox = document.getElementById("teeBox");
@@ -23,6 +24,9 @@ function App() {
   }, []);
 
   const onSwiped = (eventData: SwipeEventData) => {
+    if (gameOver) {
+      return;
+    }
     const {
       event, // source event
       initial, // initial swipe [x,y]
@@ -31,12 +35,6 @@ function App() {
       velocity, // √(absX^2 + absY^2) / time - "absolute velocity" (speed)
     } = eventData;
     console.log(event);
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (!(event.srcElement.id === "teeBox")) {
-      return;
-    }
 
     // calculate the new position of the ball
     const relativeDeltaX = deltaX * velocity * 1.2;
@@ -77,10 +75,14 @@ function App() {
         ballCenterY > greenY &&
         ballCenterY < greenY + greenHeight;
 
+      console.log(ballIsOnGreen);
       if (ballIsOnGreen) {
         alert("You made it on the green!");
+      } else {
+        alert("You missed the green!");
       }
-    }, 1000);
+      setGameOver(true);
+    }, 1250);
   };
 
   const handlers = useSwipeable({
@@ -88,12 +90,30 @@ function App() {
     preventScrollOnSwipe: true,
   });
 
+  const resetGame = () => {
+    setGameOver(false);
+
+    const teeBox = document.getElementById("teeBox");
+    const clientRect = teeBox?.getBoundingClientRect();
+
+    const teeBoxX =
+      (clientRect?.x || 0) + ((clientRect?.width || 0) - 16) / 2 || 0;
+    const teeBoxY =
+      (clientRect?.y || 0) + ((clientRect?.height || 0) - 16) / 2 || 0;
+
+    // set the ball to the tee
+    setBallPos({
+      x: teeBoxX,
+      y: teeBoxY,
+    });
+  };
+
   return (
     <div {...handlers} className="w-full h-full bg-green-500 fixed">
       {ballPos && <GolfBall pos={ballPos} />}
       <Green />
       <TeeBox />
-      <ResetButton setBallPos={setBallPos} />
+      <ResetButton resetGame={resetGame} />
     </div>
   );
 }
@@ -102,8 +122,10 @@ function Green() {
   return (
     <div
       id="green"
-      className="w-[5rem] h-[5rem] rounded-full bg-green-600 absolute top-[calc(25%_-_2.5rem)] left-[calc(50%_-_2.5rem)]"
-    ></div>
+      className="w-[5rem] h-[5rem] rounded-full bg-green-600 absolute top-[calc(25%_-_2.5rem)] left-[calc(50%_-_2.5rem)] flex items-center justify-center"
+    >
+      <img src="/golf-hole.png" width="32" height="32" />
+    </div>
   );
 }
 
@@ -133,29 +155,11 @@ function GolfBall({
   );
 }
 
-function ResetButton({
-  setBallPos,
-}: {
-  setBallPos: React.Dispatch<React.SetStateAction<{ x: number; y: number } | null>>;
-}) {
+function ResetButton({ resetGame }: { resetGame: () => void }) {
   return (
     <button
       className="absolute bottom-0 right-0 m-4 p-4 bg-white rounded-full"
-      onClick={() => {
-        const teeBox = document.getElementById("teeBox");
-        const clientRect = teeBox?.getBoundingClientRect();
-
-        const teeBoxX =
-          (clientRect?.x || 0) + ((clientRect?.width || 0) - 16) / 2 || 0;
-        const teeBoxY =
-          (clientRect?.y || 0) + ((clientRect?.height || 0) - 16) / 2 || 0;
-
-        // set the ball to the tee
-        setBallPos({
-          x: teeBoxX,
-          y: teeBoxY,
-        });
-      }}
+      onClick={resetGame}
     >
       Reset
     </button>
