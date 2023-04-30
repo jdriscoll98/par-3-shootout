@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
-import { useSwipeable } from "react-swipeable";
+import { SwipeEventData, useSwipeable } from "react-swipeable";
 
 function App() {
-  const [ballPos, setBallPos] = React.useState<{ x: number; y: number } | null>(null);
+  const [ballPos, setBallPos] = React.useState<{ x: number; y: number } | null>(
+    null
+  );
 
   useEffect(() => {
     const teeBox = document.getElementById("teeBox");
@@ -18,26 +20,24 @@ function App() {
       x: teeBoxX,
       y: teeBoxY,
     });
-    
   }, []);
 
-  const onSwiped = (eventData: any) => {
+  const onSwiped = (eventData: SwipeEventData) => {
     const {
       event, // source event
       initial, // initial swipe [x,y]
-      first, // true for first event
       deltaX, // x offset (current.x - initial.x)
       deltaY, // y offset (current.y - initial.y)
-      absX, // absolute deltaX
-      absY, // absolute deltaY
       velocity, // √(absX^2 + absY^2) / time - "absolute velocity" (speed)
-      vxvy, // [ deltaX/time, deltaY/time] - velocity per axis
-      dir, // direction of swipe (Left|Right|Up|Down)
     } = eventData;
+    console.log(event);
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     if (!(event.srcElement.id === "teeBox")) {
       return;
     }
+
     // calculate the new position of the ball
     const relativeDeltaX = deltaX * velocity * 1.2;
     const relativeDeltaY = deltaY * velocity * 1.2;
